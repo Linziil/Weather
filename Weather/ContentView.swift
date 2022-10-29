@@ -7,48 +7,39 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct ContentView: View, Sendable {
 	
-	@State var weatherDetailList = [WeatherDetails]()
+	@EnvironmentObject var fetcher: WeatherService
+	
 	var body: some View {
-		List{
-			ForEach(weatherDetailList, id: \.id) { item in
-				VStack(alignment: .leading){
-					Text(item.headline)
-						.font(.headline)
-					Text(item.description)
+		NavigationView {
+			Color.blue.opacity(0.3)
+				.ignoresSafeArea(edges: .top)
+				.overlay {
+					VStack(alignment: .leading) {
+						Text(fetcher.weatherTitle ?? "")
+							.font(.title)
+							.padding()
+						
+						List{
+							ForEach(fetcher.weatherDetailList, id: \.id) { item in
+								NavigationLink {
+									WeatherDetailView(weatherDetail: item)
+								} label: {
+									Text(item.senderName)
+								}
+							}
+						}
+						.listStyle(.grouped)
+						.scrollContentBackground(.hidden)
+					}
 				}
-			}
+				.navigationTitle("Weather")
+				.navigationViewStyle(.stack)
 		}
 		.task {
-			await loadData()
+			try? await fetcher.fetchData()
 		}
-	}
-	
-	func loadData() async {
-		guard let url = URL(string: "https://api.weather.gov/alerts/active?area=TX") else {
-			print("Invalid URL ")
-			return
-		}
-		
-		do {
-			let (data, _) = try await URLSession.shared.data(from: url)
-			if let response = try? JSONDecoder().decode(Response.self, from: data) {
-				self.weatherDetailList = response.weatherList.compactMap{ $0.details }
-			}
-		} catch {
-			print("Invalid data")
-		}
-		/*
-		do {
-			let response = try JSONDecoder().decode(Response.self, from: data)
-				self.features = response.features
-			}
-			
-		} catch let jsonError as NSError {
-			print("JSON decode failed: \(jsonError.localizedDescription)")
-		}
-		 */
 	}
 }
 
@@ -57,4 +48,3 @@ struct ContentView_Previews: PreviewProvider {
 		ContentView()
 	}
 }
-

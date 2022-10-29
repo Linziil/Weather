@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Response: Decodable {
+struct Weather: Decodable {
 	let title: String
 	let weatherList: [WeatherList]
 	
@@ -32,4 +32,3 @@ struct WeatherDetails: Decodable, Identifiable  {
 	let description: String
 
 }
-
