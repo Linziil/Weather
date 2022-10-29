@@ -9,10 +9,10 @@ import SwiftUI
 
 struct ContentView: View {
 	
-	@State var weathers = [Properties]()
+	@State var weatherDetailList = [WeatherDetails]()
 	var body: some View {
 		List{
-			ForEach(weathers, id: \.id) { item in
+			ForEach(weatherDetailList, id: \.id) { item in
 				VStack(alignment: .leading){
 					Text(item.headline)
 						.font(.headline)
@@ -34,7 +34,7 @@ struct ContentView: View {
 		do {
 			let (data, _) = try await URLSession.shared.data(from: url)
 			if let response = try? JSONDecoder().decode(Response.self, from: data) {
-				self.weathers = response.features.compactMap{ $0.properties }
+				self.weatherDetailList = response.weatherList.compactMap{ $0.details }
 			}
 		} catch {
 			print("Invalid data")

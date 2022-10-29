@@ -7,17 +7,25 @@
 
 import Foundation
 
-struct Response: Codable {
-	let features: [Feature]
+struct Response: Decodable {
+	let title: String
+	let weatherList: [WeatherList]
+	
+	private enum CodingKeys: String, CodingKey {
+		case title, weatherList = "features"
+	}
 }
 
-struct Feature: Codable {
+struct WeatherList: Decodable, Identifiable  {
 	let id: String
-	let properties: Properties
+	let details: WeatherDetails
+	
+	private enum CodingKeys: String, CodingKey {
+		case id, details = "properties"
+	}
 }
 
-
-struct Properties: Codable {
+struct WeatherDetails: Decodable, Identifiable  {
 	let id: String
 	let headline: String
 	let senderName: String
