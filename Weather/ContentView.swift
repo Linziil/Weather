@@ -8,19 +8,53 @@
 import SwiftUI
 
 struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
-        }
-        .padding()
-    }
+	
+	@State var weathers = [Properties]()
+	var body: some View {
+		List{
+			ForEach(weathers, id: \.id) { item in
+				VStack(alignment: .leading){
+					Text(item.headline)
+						.font(.headline)
+					Text(item.description)
+				}
+			}
+		}
+		.task {
+			await loadData()
+		}
+	}
+	
+	func loadData() async {
+		guard let url = URL(string: "https://api.weather.gov/alerts/active?area=TX") else {
+			print("Invalid URL ")
+			return
+		}
+		
+		do {
+			let (data, _) = try await URLSession.shared.data(from: url)
+			if let response = try? JSONDecoder().decode(Response.self, from: data) {
+				self.weathers = response.features.compactMap{ $0.properties }
+			}
+		} catch {
+			print("Invalid data")
+		}
+		/*
+		do {
+			let response = try JSONDecoder().decode(Response.self, from: data)
+				self.features = response.features
+			}
+			
+		} catch let jsonError as NSError {
+			print("JSON decode failed: \(jsonError.localizedDescription)")
+		}
+		 */
+	}
 }
 
 struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
+	static var previews: some View {
+		ContentView()
+	}
 }
+
